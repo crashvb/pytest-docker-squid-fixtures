@@ -23,6 +23,8 @@ from lovely.pytest.docker.compose import Services
 
 LOGGER = logging.getLogger(__name__)
 
+SQUID_PORT_INSECURE = 3128
+SQUID_PORT_SECURE = 3129
 SQUID_SERVICE = "pytest-squid"
 SQUID_SERVICE_PATTERN = f"{SQUID_SERVICE}-{{0}}-{{1}}"
 
@@ -146,7 +148,7 @@ def generate_htpasswd(
 
 
 def generate_keypair(
-    *, keysize: int = 4096, life_cycle: int = 7 * 24 * 60 * 60
+    *, keysize: int = 4096, life_cycle: int = 7 * 24 * 60 * 60, service_name: str = None
 ) -> CertificateKeypair:
     """
     Generates a keypair and certificate for the secure squid service.
@@ -154,6 +156,7 @@ def generate_keypair(
     Args:
         keysize: size of the private key.
         life_cycle: Lifespan of the generated certificates, in seconds.
+        service_name: Name of the service to be added as a SAN.
 
     Returns:
         tuple:
@@ -204,6 +207,7 @@ def generate_keypair(
     x509_cert.set_serial_number(randrange(100000))
     x509_cert.set_version(2)
 
+    service_name = [f"DNS:{service_name}"] if service_name else []
     x509_cert.add_extensions(
         [
             crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE"),
@@ -217,7 +221,7 @@ def generate_keypair(
                         f"DNS:*.{getfqdn()}",
                         "DNS:localhost",
                         "DNS:*.localhost",
-                        "DNS:*",
+                        *service_name,
                         "IP:127.0.0.1",
                     ]
                 ).encode("utf-8"),

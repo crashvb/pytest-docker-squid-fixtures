@@ -28,6 +28,8 @@ from .utils import (
     get_docker_compose_user_defined,
     get_embedded_file,
     get_user_defined_file,
+    SQUID_PORT_INSECURE,
+    SQUID_PORT_SECURE,
     SQUID_SERVICE,
     SQUID_SERVICE_PATTERN,
     start_service,
@@ -53,6 +55,7 @@ class SquidInsecure(NamedTuple):
     # pylint: disable=missing-class-docstring
     docker_compose: Path
     endpoint: str
+    endpoint_name: str
     service_name: str
 
 
@@ -64,6 +67,7 @@ class SquidSecure(NamedTuple):
     certs: SquidCerts
     docker_compose: Path
     endpoint: str
+    endpoint_name: str
     htpasswd: Path
     password: str
     service_name: str
@@ -336,7 +340,8 @@ def _squid_certs(
             continue
 
         tmp_path = tmp_path_factory.mktemp(__name__)
-        keypair = generate_keypair()
+        service_name = SQUID_SERVICE_PATTERN.format("secure", i)
+        keypair = generate_keypair(service_name=service_name)
         squid_cert = SquidCerts(
             ca_certificate=tmp_path.joinpath(f"{SQUID_SERVICE}-ca-{i}.crt"),
             ca_private_key=tmp_path.joinpath(f"{SQUID_SERVICE}-ca-{i}.key"),
@@ -483,14 +488,14 @@ def _squid_insecure(
         LOGGER.debug("Starting insecure squid service [%d] ...", i)
         LOGGER.debug("  docker-compose : %s", path_docker_compose)
         LOGGER.debug("  service name   : %s", service_name)
-        LOGGER.debug("  squidcfg     : %s", squid_squidcfg_insecure_list[i])
+        LOGGER.debug("  squidcfg       : %s", squid_squidcfg_insecure_list[i])
 
         check_server = partial(check_proxy, protocol="http")
         endpoint = start_service(
             docker_services,
             check_server=check_server,
             docker_compose=path_docker_compose,
-            private_port=3128,
+            private_port=SQUID_PORT_INSECURE,
             service_name=service_name,
         )
         LOGGER.debug("Insecure squid endpoint [%d]: %s", i, endpoint)
@@ -499,6 +504,7 @@ def _squid_insecure(
             SquidInsecure(
                 docker_compose=path_docker_compose,
                 endpoint=endpoint,
+                endpoint_name=f"{service_name}:{SQUID_PORT_INSECURE}",
                 service_name=service_name,
             )
         )
@@ -613,7 +619,7 @@ def _squid_secure(
         LOGGER.debug("  docker-compose : %s", path_docker_compose)
         LOGGER.debug("  ca certificate : %s", squid_certs_list[i].ca_certificate)
         LOGGER.debug("  certificate    : %s", squid_certs_list[i].certificate)
-        LOGGER.debug("  squidcfg     : %s", squid_squidcfg_secure_list[i])
+        LOGGER.debug("  squidcfg       : %s", squid_squidcfg_secure_list[i])
         LOGGER.debug("  private key    : %s", squid_certs_list[i].private_key)
         LOGGER.debug("  password       : %s", squid_password_list[i])
         LOGGER.debug("  service name   : %s", service_name)
@@ -629,7 +635,7 @@ def _squid_secure(
             docker_services,
             check_server=check_server,
             docker_compose=path_docker_compose,
-            private_port=3129,
+            private_port=SQUID_PORT_SECURE,
             service_name=service_name,
         )
         LOGGER.debug("Secure squid endpoint [%d]: %s", i, endpoint)
@@ -641,6 +647,7 @@ def _squid_secure(
                 certs=squid_certs_list[i],
                 docker_compose=path_docker_compose,
                 endpoint=endpoint,
+                endpoint_name=f"{service_name}:{SQUID_PORT_SECURE}",
                 htpasswd=squid_htpasswd_list[i],
                 password=squid_password_list[i],
                 service_name=service_name,

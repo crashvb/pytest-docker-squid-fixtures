@@ -112,6 +112,7 @@ The following fields are defined in the tuple provided by this fixture:
 
 * **docker_compose** - Path to the fully instantiated docker-compose configuration.
 * **endpoint** - Endpoint of the insecure squid service.
+* **endpoint_name** - Endpoint of the insecure squid service, by service name.
 * **service_name** - Name of the service within the docker-compose configuration.
 
 Typing is provided by `pytest_docker_squid_fixtures.SquidInsecure`.
@@ -146,6 +147,7 @@ The following fields are defined in the tuple provided by this fixture:
 * **certs** - from [squid_certs](#squid_certs).
 * **docker_compose** - Path to the fully instantiated docker-compose configuration.
 * **endpoint** - Endpoint of the secure squid service.
+* **endpoint_name** - Endpoint of the secure squid service, by service name.
 * **htpasswd** - from [squid_htpasswd](#squid_htpasswd)
 * **password** - from [squid_password](#squid_password).
 * **service_name** - Name of the service within the docker-compose configuration.
