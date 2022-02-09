@@ -212,6 +212,22 @@ This fixture will be used to scale both the insecure and secure docker registrie
 1. All the fixtures provided by this package are <tt>session</tt> scoped; and will only be executed once per test execution.
 2. At most 10 insecure and 10 secure squid instances are supported using the embedded docker compose.
 
+## External Debugging
+While all the metadata needed to interact with the proxy is available for consumption via fixtures, sometimes it is desirable to interact with the instantiated service outside of the test context.
+
+If pytest is executed with <tt>--keepalive</tt>, it is possible to connect to the proxy using external tooling both during and after testing has completed:
+
+```bash
+$ https_proxy=https://127.0.0.1:$(docker inspect --format='{{ (index (index .NetworkSettings.Ports "3129/tcp") 0).HostPort }}' pytest-squid-secure-0) \
+curl --head --proxy-insecure --proxy-user "pytest.username...:pytest.password..." https://www.google.com/
+HTTP/1.1 200 Connection established
+
+HTTP/2 200
+content-type: text/html; charset=ISO-8859-1
+...
+```
+
+You can also retrieve additional, transient, configuration files, such as the CA certificate or proxy configuration, from <tt>/tmp/pytest-of-${USER}/pytest-current/...</tt> or by inspecting the running container.
 ## Development
 
 [Source Control](https://github.com/crashvb/pytest-docker-squid-fixtures)
