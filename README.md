@@ -164,11 +164,11 @@ Provides an SSL context containing the CA trust store from the  [squid_cacerts](
 
 Provides a generated username to use for authentication to the secure squid service. This fixture is used to replicate docker images into the secure squid service.
 
-### <a name="pdhf_docker_compose_insecure"></a> pdhf_docker_compose_insecure
+### <a name="pdsf_docker_compose_insecure"></a> pdsf_docker_compose_insecure
 
 This fixture uses the `docker_compose_files` fixture to locate a user-defined docker-compose configuration file (typically <tt>tests/docker-compose.yml</tt>) that contains the <tt>pytest-docker-squid-insecure</tt> service. If one cannot be located, an embedded configuration is copied to a temporary location and returned. This fixture is used to instantiate the insecure squid service. The configuration will be treated as a template; the <tt>$PATH_SQUIDCFG</tt> token will be populated with the absolute path provided by the [squid_squidcfg](#squid_squidcfg) fixture.
 
-### <a name="pdhf_docker_compose_secure"></a> pdhf_docker_compose_secure
+### <a name="pdsf_docker_compose_secure"></a> pdsf_docker_compose_secure
 
 This fixture uses the `docker_compose_files` fixture to locate a user-defined docker-compose configuration file (typically <tt>tests/docker-compose.yml</tt>) that contains the <tt>pytest-docker-squid-secure</tt> service. If one cannot be located, an embedded configuration is copied to a temporary location and returned. This fixture is used to instantiate the secure squid service. The configuration will be treated as a template; the <tt>$PATH_CERTIFICATE</tt>, <tt>$PATH_HTPASSWD</tt>, <tt>$PATH_KEY</tt>, and <tt>$PATH_SQUIDCFG</tt> tokens will be populated with the absolute paths provided by the [squid_certs](#squid_certs), [squid_htpasswd](#squid_htpasswd), and [squid_squidcfg](#squid_squidcfg) fixtures, as appropriate.
 
@@ -195,13 +195,13 @@ def test_squid_secure_list(squid_secure_list: List[SquidSecure]):
 
 It is possible to use both singular and enumerated fixtures within the same test context; however, the same values will be returned for the singular fixture as the first enumerated list value (i.e. squid_secure == squid_secure_list[0]). To avoid complications with lower layers, mainly docker-compose, and to allow for this interchangeability, caching is used internally.
 
-By default, the scale factor of the enumerated instances is set to one (n=1). This value can be changed by overriding the `pdhf_scale_factor` fixture, as follows:
+By default, the scale factor of the enumerated instances is set to one (n=1). This value can be changed by overriding the `pdsf_scale_factor` fixture, as follows:
 
 ```python
 import pytest
 
 @pytest.fixture(scope="session")
-def pdhf_scale_factor() -> int:
+def pdsf_scale_factor() -> int:
     return 4
 ```
 
@@ -228,6 +228,7 @@ content-type: text/html; charset=ISO-8859-1
 ```
 
 You can also retrieve additional, transient, configuration files, such as the CA certificate or proxy configuration, from <tt>/tmp/pytest-of-${USER}/pytest-current/...</tt> or by inspecting the running container.
+
 ## Development
 
 [Source Control](https://github.com/crashvb/pytest-docker-squid-fixtures)

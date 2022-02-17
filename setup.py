@@ -48,6 +48,10 @@ setup(
     package_data={
         "pytest_docker_squid_fixtures": ["docker-compose*.yml", "squid.*.cfg"]
     },
+    project_urls={
+        "Bug Reports": "https://github.com/crashvb/pytest-docker-squid-fixtures/issues",
+        "Source": "https://github.com/crashvb/pytest-docker-squid-fixtures",
+    },
     test_suite="tests",
     tests_require=["urllib3"],
     url="https://github.com/crashvb/pytest-docker-squid-fixtures",
