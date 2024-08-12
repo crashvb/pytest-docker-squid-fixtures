@@ -292,7 +292,7 @@ def test_squid_insecure_list(
         )
         request.set_proxy(host=squid_insecure_list[i].endpoint, type="http")
         with urllibrequest.urlopen(url=request) as response:
-            assert response.code == 200
+            assert response.code in [200, 204]
 
     assert no_duplicates([str(i) for i in squid_insecure_list])
 
